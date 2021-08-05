@@ -1,4 +1,6 @@
 <script>
+  const providers = ['twitter', 'github', 'aad']; //공급자 목록
+  const redirect = window.location.pathname; //로그인 후 리디렉션을 위한 현재 url 캡처
   import { Link } from 'svelte-routing';
 
   function getProps({ href, isPartiallyCurrent, isCurrent }) {
@@ -10,6 +12,26 @@
     }
     return {};
   }
+
+
+  import { onMount } from 'svelte';
+
+  let userInfo = undefined;
+
+  onMount(async () => (userInfo = await getUserInfo()));
+
+  async function getUserInfo() {
+    try {
+      const response = await fetch('/.auth/me');
+      const payload = await response.json();
+      const { clientPrincipal } = payload;
+      return clientPrincipal;
+    } catch (error) {
+      console.error('No profile could be found');
+      return undefined;
+    }
+  }
+
 </script>
 
 <div class="column is-2">
@@ -20,4 +42,35 @@
       <Link to="/about" {getProps}>About</Link>
     </ul>
   </nav>
+
+  <!-- Login and logout buttons -->
+  <nav class="menu auth">
+    <p class="menu-label">Auth</p>
+    <div class="menu-list auth">
+      {#if !userInfo}
+        {#each providers as provider (provider)}
+          <a href={`/.auth/login/${provider}?post_login_redirect_uri=${redirect}`}>
+            {provider}
+          </a>
+        {/each}
+      {/if}
+      {#if userInfo}
+        <a href={`/.auth/logout?post_logout_redirect_uri=${redirect}`}> <!-- 아까 본 애들 -->
+          Logout
+        </a>
+      {/if}
+    </div>
+  </nav>
+  <!-- end of login and logout buttons -->
+
+  <!-- User infos -->
+  {#if userInfo}
+    <div class="user">
+      <p>Welcome</p>
+      <p>{userInfo && userInfo.userDetails}</p>
+      <p>{userInfo && userInfo.identityProvider}</p>
+    </div>
+  {/if}
+  <!-- End of user infos -->
 </div>
+
