@@ -1,5 +1,5 @@
 <script>
-  const providers = ['twitter', 'github', 'aad', 'facebook']; //공급자 목록
+  const providers = ['twitter', 'github', 'aad', 'facebook', 'google']; //공급자 목록
   const redirect = window.location.pathname; //로그인 후 리디렉션을 위한 현재 url 캡처
   import { Link } from 'svelte-routing';
 
